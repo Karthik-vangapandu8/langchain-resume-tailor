@@ -1,21 +1,24 @@
-# ⚡ HackerRank AI Resume Architect & ATS Tailor
+# ⚡ Universal AI Resume Architect & ATS Tailor
 
-> **Multi-Agent Resume Optimization System** powered by **LangChain**, **Ollama (Local LLMs: Qwen 2.5 & Gemma 3)**, **PyPDF**, and **ReportLab**, custom-engineered for the **HackerRank SDE Intern Role** (*"Care about the craft"*, *"Humans & AI build side-by-side"*).
+> **Multi-Agent Resume Optimization System** powered by **LangChain**, **Ollama (Local LLMs: Qwen 2.5 & Gemma 3)**, **PyPDF**, and **ReportLab**. Analyzes **ANY candidate resume** against **ANY job description (JD)** to optimize ATS match scores and export standard-setting, ATS-compliant PDF resumes.
 
-![HackerRank AI Resume Architect Architecture](./docs/architecture.png)
+![AI Resume Architect Architecture](./docs/architecture.png)
 
 ---
 
 ## 🌟 Overview
 
-The **HackerRank AI Resume Architect** is a privacy-first, 100% local multi-agent system designed to optimize tech resumes for competitive software engineering positions. By pairing **PyPDF** text extraction with **LangChain** agent orchestration and **Ollama local LLMs**, the application conducts a deep ATS (Applicant Tracking System) audit and rewrites resume bullet points using the **STAR Method** (Situation, Task, Action, Result).
+The **Universal AI Resume Architect & ATS Tailor** is a privacy-first, 100% local multi-agent system designed to optimize tech resumes for any software engineering role, company, or job description. By combining **PyPDF** text extraction with **LangChain** agent orchestration and **Ollama local LLMs**, the application conducts a deep ATS (Applicant Tracking System) audit and rewrites resume bullet points using the **STAR Method** (Situation, Task, Action, Result).
 
 ### 🎯 Key Highlights:
-- **Zero Cloud API Dependencies:** Runs 100% locally via Ollama (`qwen2.5:latest` and `gemma3:4b`).
-- **Dual AI Agent Pipeline:** Agent 1 (ATS Auditor) & Agent 2 (STAR Resume Architect).
-- **Automated PyPDF Text Extraction:** Parses PDF resumes into structured sections seamlessly.
+- **Universal Compatibility:** Works with any PDF resume input and any target Job Description (SDE Intern, Full-Time SDE, Backend, Frontend, AI/ML, DevOps, etc.).
+- **Zero Cloud API Dependencies:** Runs 100% locally via Ollama (`qwen2.5:latest` and `gemma3:4b`), keeping user resumes 100% private.
+- **Dual AI Agent Pipeline:** 
+  - **Agent 1 (ATS & Skill Gap Auditor):** Computes ATS score, identifies missing keywords, flags weak bullet points, and checks company cultural alignment.
+  - **Agent 2 (STAR Resume Architect):** Rewrites experiences and project descriptions into high-impact STAR bullet points with quantifiable metrics.
+- **Automated PyPDF Text Extraction:** Parses PDF resumes into structured text sections seamlessly.
 - **ATS-Compliant PDF Generation:** Compiles optimized content into a clean single-page PDF using ReportLab.
-- **Interactive Streamlit Web Dashboard:** Modern dark-mode UI with live ATS gauges, side-by-side comparisons, and instant PDF download.
+- **Interactive Streamlit Web Dashboard:** Modern dark-mode UI with live ATS gauges, side-by-side comparisons, preset JDs, and instant PDF download.
 
 ---
 
@@ -23,14 +26,14 @@ The **HackerRank AI Resume Architect** is a privacy-first, 100% local multi-agen
 
 ```mermaid
 graph TD
-    A[📄 Upload Resume PDF] -->|PyPDF Parser| B[Raw Text & Sections]
-    C[📋 HackerRank SDE Intern JD] --> D[Agent 1: ATS & Skill Gap Auditor]
+    A[📄 Upload Any Resume PDF] -->|PyPDF Parser| B[Raw Text & Sections]
+    C[📋 Paste Any Job Description JD] --> D[Agent 1: ATS & Skill Gap Auditor]
     B --> D
     D -->|ATS Score & Gap Analysis| E[Agent 2: STAR Resume Architect]
     B --> E
     C --> E
     E -->|Structured JSON| F[ReportLab PDF Engine]
-    F -->|ATS Compliant PDF| G[⬇️ Downloadable PDF Resume]
+    F -->|ATS Compliant PDF| G[⬇️ Downloadable Tailored PDF Resume]
     D --> H[Streamlit Interactive Dashboard]
     E --> H
 ```
@@ -40,21 +43,22 @@ graph TD
 ## 🤖 The 2 AI Agents
 
 ### 📊 Agent 1: `ATS & Skill Gap Auditor` (`ats_analyzer_agent.py`)
-* **Role:** Evaluates candidate resume text against the target Job Description.
+* **Role:** Evaluates candidate resume text against any target Job Description.
 * **LangChain Engine:** Uses `JsonOutputParser` + Pydantic schema validation over `ChatOllama`.
 * **Output Metrics:**
   * **ATS Match Score (%)**: Overall compatibility percentage.
-  * **Matched Skills**: Overlapping hard skills and frameworks.
+  * **Matched Skills**: Overlapping hard skills, tools, and frameworks.
   * **Missing Keywords**: Crucial tech stack & concepts missing from the candidate's profile.
   * **Weak Bullets**: Bullet points lacking metrics or STAR structure.
-  * **HackerRank Values Alignment**: Checks for developer tool passion, clean code, and human+AI side-by-side building principles.
+  * **Cultural & Role Alignment**: Checks for key principles emphasized in the target JD.
+  * **Actionable Recommendations**: 3-5 high-priority steps to elevate the candidate's application.
 
 ### 📝 Agent 2: `STAR Resume Architect` (`resume_tailor_agent.py`)
-* **Role:** Rewrites and optimizes candidate experiences and project descriptions.
+* **Role:** Rewrites and optimizes candidate experiences and project descriptions for the target JD.
 * **LangChain Engine:** Consumes candidate text + Agent 1 gap analysis to produce structured JSON data.
 * **Optimization Highlights:**
   * Rewrites generic descriptions into high-impact STAR-format bullet points.
-  * Weaves in missing keywords (e.g. *REST APIs, Automated Testing, Python/C++/Java, Git, Data Structures*) naturally.
+  * Weaves in missing keywords and key technologies naturally.
   * Preserves truthful candidate experience while elevating technical impact metrics.
 
 ---
@@ -77,7 +81,7 @@ graph TD
 Ensure you have Python 3.9+ installed and Ollama running locally:
 
 ```bash
-# Verify Ollama installation & pull recommended model
+# Verify Ollama installation & pull recommended models
 ollama pull qwen2.5:latest
 ollama pull gemma3:4b
 ```
@@ -86,8 +90,8 @@ ollama pull gemma3:4b
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/hackerrank-ai-resume-architect.git
-cd hackerrank-ai-resume-architect
+git clone https://github.com/your-username/ai-resume-architect.git
+cd ai-resume-architect
 
 # Create and activate virtual environment
 python3 -m venv venv

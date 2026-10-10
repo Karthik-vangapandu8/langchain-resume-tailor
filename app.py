@@ -10,13 +10,13 @@ from pdf_generator import generate_resume_pdf
 
 # Page Config
 st.set_page_config(
-    page_title="AI Resume Architect & ATS Tailor for HackerRank",
+    page_title="Universal AI Resume Architect & ATS Tailor",
     page_icon="⚡",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for Modern HackerRank-inspired styling
+# Custom CSS for Modern styling
 st.markdown("""
 <style>
     .main-title {
@@ -29,13 +29,6 @@ st.markdown("""
         font-size: 1.05rem;
         color: #A0AEC0;
         margin-bottom: 20px;
-    }
-    .metric-card {
-        background-color: #1A202C;
-        border-left: 5px solid #00EA64;
-        padding: 15px;
-        border-radius: 8px;
-        margin-bottom: 15px;
     }
     .badge-matched {
         background-color: #1C4532;
@@ -62,8 +55,9 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Default HackerRank SDE Intern JD Preset
-DEFAULT_HACKERRANK_JD = """HackerRank Software Development Engineer Intern (Bengaluru, 6-Month Full-time Onsite)
+# Presets for quick selection
+PRESET_JDS = {
+    "HackerRank SDE Intern Role": """HackerRank Software Development Engineer Intern (Bengaluru, 6-Month Full-time Onsite)
 Overview:
 HackerRank helps companies like NVIDIA, Amazon, and Microsoft hire and upskill the next generation of developers based on skills, not pedigree.
 Software has entered an era where humans and AI build side by side. As this shift accelerates, the definition of strong technical talent is changing.
@@ -73,29 +67,50 @@ Requirements & Principles:
 - Developers first: Every decision gets one test: does it help developers do their best work?
 - Technical Skills: Strong foundation in Data Structures, Algorithms, Python, C++, or Java, REST APIs, Git, Automated Testing, and System Design concepts.
 - Building side-by-side with AI tools (Gemini, Copilot, LangChain).
-- Data-driven engineering, high standards, ownership, and transparent communication."""
+- Data-driven engineering, high standards, ownership, and transparent communication.""",
+
+    "General Software Development Engineer (Full-Time / Intern)": """Software Development Engineer (SDE)
+We are looking for a Software Development Engineer to join our core product team. You will be responsible for building high-performance, scalable web services and backend architectures.
+
+Key Responsibilities & Qualifications:
+- Proficiency in Python, Java, or C++ with a strong grasp of Object-Oriented Programming (OOP).
+- Strong understanding of Data Structures, Algorithms, and System Design.
+- Hands-on experience developing RESTful APIs and working with relational databases (PostgreSQL, MySQL).
+- Familiarity with CI/CD pipelines, Git version control, and automated unit/integration testing.
+- Strong problem-solving skills, clean code habits, and ability to work in an agile team environment.""",
+
+    "AI / Machine Learning Engineer": """AI / Machine Learning Engineer
+Looking for an AI/ML Engineer to build intelligent agentic systems, LLM workflows, and data pipelines.
+
+Requirements:
+- Strong programming skills in Python, PyTorch, or TensorFlow.
+- Experience building AI workflows with LangChain, LlamaIndex, or agentic frameworks.
+- Deep understanding of NLP, Transformer architectures, prompt engineering, and fine-tuning.
+- Experience with vector databases (ChromaDB, Pinecone) and REST API deployment (FastAPI, Docker).
+- Ability to deploy local LLMs using Ollama or vLLM."""
+}
 
 DEFAULT_SAMPLE_RESUME = """Karthik Vangapandu
 Email: karthik.v@example.com | Phone: +91 9876543210 | GitHub: github.com/karthik
 Location: Bengaluru, India
 
 Summary:
-Motivated Computer Science student passionate about web development and coding. Looking for an SDE Internship opportunity.
+Motivated Computer Science student passionate about web development, coding, and building AI tools. Looking for an SDE Internship opportunity.
 
 Technical Skills:
 Languages: Python, JavaScript, HTML/CSS, SQL
 Tools & Frameworks: Git, React, Node.js, Express, MySQL
 
 Experience:
-Web Developer Intern | Tech Solutions (Jan 2024 - May 2024)
+Software Engineering Intern | Tech Solutions (Jan 2024 - May 2024)
 - Developed frontend components using React.
 - Wrote backend APIs in Node.js and SQL queries.
 - Used Git for version control.
 
 Projects:
-Automated Scripting Tool (Python)
+Automated Scripting & Data Pipeline (Python)
 - Wrote Python scripts to scrape website data and format into CSV files.
-- Used basic error handling.
+- Used basic error handling and data cleaning scripts.
 
 Web App for Task Management (React, Node.js)
 - Created a task tracker app with user authentication and database storage.
@@ -106,8 +121,8 @@ ABC Institute of Technology, CGPA: 8.5/10
 """
 
 # Header
-st.markdown('<div class="main-title">⚡ AI Resume Architect & ATS Tailor</div>', unsafe_allow_html=True)
-st.markdown('<div class="sub-title">Powered by <b>LangChain</b> + <b>Ollama (Local LLMs)</b> + <b>PyPDF</b> for HackerRank SDE Intern Role</div>', unsafe_allow_html=True)
+st.markdown('<div class="main-title">⚡ Universal AI Resume Architect & ATS Tailor</div>', unsafe_allow_html=True)
+st.markdown('<div class="sub-title">Powered by <b>LangChain</b> + <b>Ollama (Local LLMs)</b> + <b>PyPDF</b> | Tailor <i>Any Resume</i> for <i>Any Job Description</i></div>', unsafe_allow_html=True)
 
 # Sidebar Controls
 st.sidebar.header("⚙️ Configuration")
@@ -120,7 +135,7 @@ uploaded_file = st.sidebar.file_uploader("Upload Existing Resume (PDF)", type=["
 use_sample_resume = st.sidebar.checkbox("Use Sample Resume", value=(uploaded_file is None))
 
 st.sidebar.markdown("---")
-st.sidebar.info("💡 **HackerRank SDE Intern Presets Loaded**\n- PyPDF Text Extraction\n- Agent 1: ATS Audit Chain\n- Agent 2: STAR Tailor Chain\n- ReportLab ATS PDF Export")
+st.sidebar.info("💡 **Universal Multi-Agent Pipeline**\n- PyPDF Text Extraction\n- Agent 1: ATS Audit Chain\n- Agent 2: STAR Tailor Chain\n- ReportLab ATS PDF Export")
 
 # Resume Text Extraction
 resume_text = ""
@@ -144,7 +159,9 @@ with col_left:
 
 with col_right:
     st.subheader("🎯 Target Job Description (JD)")
-    jd_text_area = st.text_area("Paste JD Text", value=DEFAULT_HACKERRANK_JD, height=350)
+    selected_preset = st.selectbox("Quick Load Preset JD", list(PRESET_JDS.keys()), index=0)
+    jd_default_val = PRESET_JDS[selected_preset]
+    jd_text_area = st.text_area("Paste or Edit JD Text", value=jd_default_val, height=295)
 
 st.markdown("---")
 
@@ -153,7 +170,6 @@ if st.button("🚀 Run 2-Agent AI Workflow (Analyze & Tailor)", type="primary", 
     if not resume_text_area.strip() or not jd_text_area.strip():
         st.warning("Please provide both Resume Text and Job Description text.")
     else:
-        # Initialize session state for workflow outputs
         st.session_state["workflow_completed"] = False
         
         # Step 1: Run Agent 1
@@ -172,7 +188,7 @@ if st.button("🚀 Run 2-Agent AI Workflow (Analyze & Tailor)", type="primary", 
 
         # Step 3: PDF Generation
         with st.status("🖨️ Compiling ATS PDF Resume using ReportLab...", expanded=True) as status:
-            pdf_path = generate_resume_pdf(tailored_result, "hackerrank_tailored_resume.pdf")
+            pdf_path = generate_resume_pdf(tailored_result, "tailored_resume.pdf")
             st.session_state["pdf_path"] = pdf_path
             status.update(label="✅ ATS PDF Resume Generated!", state="complete", expanded=False)
 
@@ -218,7 +234,7 @@ if st.session_state.get("workflow_completed", False):
                 st.warning(f"• {bullet}")
 
         with c2:
-            st.subheader("💚 HackerRank Cultural Alignment Notes")
+            st.subheader("💚 Company & Cultural Alignment Notes")
             for note in ats_data.get("hackerrank_alignment", []):
                 st.info(f"• {note}")
 
@@ -254,7 +270,7 @@ if st.session_state.get("workflow_completed", False):
     # Tab 3: PDF Download
     with tab3:
         st.subheader("🖨️ Ready to Submit ATS PDF Resume")
-        st.write("Your tailored resume has been converted into an ATS-scannable single-page PDF formatted specifically for the HackerRank SDE Intern role.")
+        st.write("Your tailored resume has been converted into an ATS-scannable single-page PDF formatted specifically for your target job description.")
         
         if os.path.exists(pdf_filepath):
             with open(pdf_filepath, "rb") as f:
@@ -262,7 +278,7 @@ if st.session_state.get("workflow_completed", False):
             st.download_button(
                 label="📥 Download Tailored ATS PDF Resume",
                 data=pdf_data,
-                file_name=f"{tailored_data.get('full_name', 'Tailored').replace(' ', '_')}_HackerRank_Resume.pdf",
+                file_name=f"{tailored_data.get('full_name', 'Tailored').replace(' ', '_')}_Tailored_Resume.pdf",
                 mime="application/pdf",
                 type="primary",
                 use_container_width=True
